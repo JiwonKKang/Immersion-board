@@ -16,11 +16,8 @@ public class AnswerService {
 
 
     public void create(Question question, String content, SiteUser author) {
-        Answer answer = new Answer();
-        answer.setContent(content);
-        answer.setCreateDate(LocalDateTime.now());
-        answer.setQuestion(question);
-        answer.setAuthor(author);
+        Answer answer = Answer.of(content, LocalDateTime.now(), author);
+        question.addAnswer(answer);
         this.answerRepository.save(answer);
     }
 }

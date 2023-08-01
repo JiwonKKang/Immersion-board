@@ -4,6 +4,9 @@ package com.mygroup.sbb.question;
 import java.security.Principal;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,8 +37,9 @@ public class QuestionController {
     private final UserService userService;
 
     @GetMapping("/list")
-    public String list(Model model,@RequestParam(value="page", defaultValue="0") int page) {
-        Page<Question> paging = this.questionService.getList(page);
+    public String list(Model model,
+                       @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<Question> paging = questionService.getList(pageable);
         model.addAttribute("paging", paging);
         return "question_list";
     }
@@ -79,26 +83,18 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{id}")
     public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, 
-            Principal principal, @PathVariable("id") Integer id) {
+            Principal principal, @PathVariable("id") Integer questionId) {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
-        Question question = this.questionService.getQuestion(id);
-        if (!question.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-        this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
-        return String.format("redirect:/question/detail/%s", id);
+        this.questionService.modify(questionId, questionForm.getSubject(), questionForm.getContent(),principal.getName());
+        return String.format("redirect:/question/detail/%s", questionId);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String questionDelete(Principal principal, @PathVariable("id") Integer id) {
-        Question question = this.questionService.getQuestion(id);
-        if (!question.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
-        this.questionService.delete(question);
+    public String questionDelete(Principal principal, @PathVariable("id") Integer questionId) {
+        this.questionService.delete(questionId, principal.getName());
         return "redirect:/";
     }
 }
