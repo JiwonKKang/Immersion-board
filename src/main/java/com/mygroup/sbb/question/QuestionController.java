@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,19 +65,19 @@ public class QuestionController {
             return "question_form";
         }
         SiteUser siteUser = this.userService.getUser(principal.getName());
-        this.questionService.create(questionForm.getSubject(), questionForm.getContent(), siteUser);
+        questionService.create(questionForm.subject(), questionForm.content(), siteUser);
         return "redirect:/question/list"; // 질문 저장후 질문목록으로 이동
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
-    public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) {
+    public String questionModify(@PathVariable("id") Integer id, Principal principal, ModelMap map) {
         Question question = this.questionService.getQuestion(id);
         if(!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
-        questionForm.setSubject(question.getSubject());
-        questionForm.setContent(question.getContent());
+        QuestionForm questionForm = QuestionForm.from(question);
+        map.addAttribute("questionForm", questionForm);
         return "question_form";
     }
 
@@ -87,7 +88,7 @@ public class QuestionController {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
-        this.questionService.modify(questionId, questionForm.getSubject(), questionForm.getContent(),principal.getName());
+        questionService.modify(questionId, questionForm.subject(), questionForm.content(), principal.getName());
         return String.format("redirect:/question/detail/%s", questionId);
     }
 
