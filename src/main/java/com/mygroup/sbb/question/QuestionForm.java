@@ -1,5 +1,7 @@
 package com.mygroup.sbb.question;
 
+import com.mygroup.sbb.user.SiteUser;
+import com.mygroup.sbb.user.SiteUserDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -18,6 +20,14 @@ public record QuestionForm(
         return new QuestionForm(
                 entity.getSubject(),
                 entity.getContent()
+        );
+    }
+
+    public QuestionDto toDto(SiteUser author) {
+        return QuestionDto.of(
+                subject,
+                content,
+                SiteUserDto.from(author)
         );
     }
 }

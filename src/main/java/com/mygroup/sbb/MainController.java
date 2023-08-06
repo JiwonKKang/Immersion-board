@@ -1,10 +1,12 @@
 package com.mygroup.sbb;
 
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@EnableJpaAuditing
 public class MainController {
 
     @GetMapping("/sbb")

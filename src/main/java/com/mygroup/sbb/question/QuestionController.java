@@ -28,6 +28,7 @@ import com.mygroup.sbb.user.UserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RequiredArgsConstructor
 @Controller
@@ -64,15 +65,14 @@ public class QuestionController {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
-        SiteUser siteUser = this.userService.getUser(principal.getName());
-        questionService.create(questionForm.subject(), questionForm.content(), siteUser);
+        questionService.create(questionForm.toDto(userService.getUser(principal.getName())));
         return "redirect:/question/list"; // 질문 저장후 질문목록으로 이동
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
     public String questionModify(@PathVariable("id") Integer id, Principal principal, ModelMap map) {
-        Question question = this.questionService.getQuestion(id);
+        Question question = questionService.getQuestion(id);
         if(!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
@@ -83,13 +83,15 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{id}")
-    public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, 
-            Principal principal, @PathVariable("id") Integer questionId) {
+    public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult,
+                                 Principal principal, @PathVariable("id") Integer questionId, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
-        questionService.modify(questionId, questionForm.subject(), questionForm.content(), principal.getName());
-        return String.format("redirect:/question/detail/%s", questionId);
+
+        questionService.modify(questionId, questionForm.toDto(userService.getUser(principal.getName())));
+        redirectAttributes.addAttribute("questionId", questionId);
+        return "redirect:/question/detail/{questionId}";
     }
 
     @PreAuthorize("isAuthenticated()")
