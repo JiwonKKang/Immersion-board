@@ -4,6 +4,7 @@ package com.mygroup.sbb.question;
 import java.security.Principal;
 import java.util.List;
 
+import com.mygroup.sbb.chatgpt.ChatGptMessageService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -37,6 +38,7 @@ public class QuestionController {
 
     private final QuestionService questionService;
     private final UserService userService;
+    private final ChatGptMessageService chatGptMessageService;
 
     @GetMapping("/list")
     public String list(Model model,
@@ -65,7 +67,8 @@ public class QuestionController {
         if (bindingResult.hasErrors()) {
             return "question_form";
         }
-        questionService.create(questionForm.toDto(userService.getUser(principal.getName())));
+        Question question = questionService.create(questionForm.toDto(userService.getUser(principal.getName())));
+        chatGptMessageService.sendMessgae(question);
         return "redirect:/question/list"; // 질문 저장후 질문목록으로 이동
     }
 

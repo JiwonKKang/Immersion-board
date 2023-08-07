@@ -32,10 +32,10 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final UserRepository userRepository;
 
-    public void create(QuestionDto dto) {
+    public Question create(QuestionDto dto) {
         SiteUser user = userRepository.getReferenceById(dto.author().id());
         Question question = dto.toEntity(user);
-        questionRepository.save(question);
+        return questionRepository.save(question);
     }
 
     public Page<Question> getList(Pageable pageable) {
