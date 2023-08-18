@@ -13,7 +13,7 @@ RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/sbb-0.0.
 
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
-ARG EXTRACTED=/workspace/app/build/extractedg
+ARG EXTRACTED=/workspace/app/build/extracted
 COPY --from=build ${EXTRACTED}/dependencies/ ./
 COPY --from=build ${EXTRACTED}/spring-boot-loader/ ./
 COPY --from=build ${EXTRACTED}/snapshot-dependencies/ ./
