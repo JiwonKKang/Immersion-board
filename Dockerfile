@@ -5,7 +5,7 @@ COPY gradlew .
 COPY .gradle .gradle
 COPY gradle gradle
 COPY build.gradle .
-COPY settings.gradle .
+COPY settings.gradle .docker
 COPY src src
 
 RUN ./gradlew build -x test
