@@ -1,2 +1,2 @@
 insert into site_user (username, password, email, modify_date, create_date) values ('kjwp1', '$2a$10$3k5Wh408b0IywQrlUTjO2uMGM9xTdWom5WXO8D7UsbI93wlhtN9S2', 'kjwp1@naver.com', now(), now());
-insert into question (subject, content, author_id, create_date, modify_date) values ('CosmosDB', '코스모스DB입니다', 1, now(),now());
+insert into question (subject, content, author_id, create_date, modify_date) values ('게시글 1번', 'data.sql로 게시글 1번을 초기화했습니다.', 1, now(),now());
