@@ -1,12 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine as build
 WORKDIR /workspace/app
 
-COPY gradlew .
-COPY .gradle .gradle
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
-COPY src src
+COPY . .
 
 RUN ./gradlew build -x test
 RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/sbb-1.0.0.jar extract --destination build/extracted)
