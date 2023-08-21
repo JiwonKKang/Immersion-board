@@ -5,11 +5,11 @@ COPY gradlew .
 COPY .gradle .gradle
 COPY gradle gradle
 COPY build.gradle .
-COPY settings.gradle .docker
+COPY settings.gradle .
 COPY src src
 
 RUN ./gradlew build -x test
-RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/sbb-0.0.8.jar extract --destination build/extracted)
+RUN mkdir build/extracted && (java -Djarmode=layertools -jar build/libs/sbb-1.0.0.jar extract --destination build/extracted)
 
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
