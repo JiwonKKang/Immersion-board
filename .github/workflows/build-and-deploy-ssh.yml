@@ -9,7 +9,7 @@ on:
     # 리스트 형태이기 때문에 여러개를 적어도 됩니다.
 
 env:
-  DOCKER_IMAGE: ghcr.io/jiwonkkang/sbb
+  DOCKER_IMAGE: ghcr.io/${{ github.actor }}/sbb
   VERSION: ${{ github.sha }}
   CONTAINER_NAME: sbb
   # Docker image 를 ghcr.io 에 올릴 때 우리의github이름/이미지이름 으로 저장한다. 이미지이름을 정해주면 된다.
@@ -34,11 +34,18 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ env.VERSION }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+            
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'      
+          
       - name: Login to ghcr
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ env.OWNER_LC }}
           password: ${{ secrets.GHCR_TOKEN }}
           # 우리가 방금 복사해서 setting secrets 에 붙여줬던 token 이다. 이름을 기억해 넣어주자.
           # 우리의 ghcr.io 에 접근하기 위함이다.
@@ -58,6 +65,8 @@ jobs:
     # label-newproject 라는 이름으로 AWS EC2 가 Runner 를 작동시킬 때 사용했던 그 label
     steps:
       - name: Docker login
+        env: 
+          GHCR_TOKEN: ${{ secret.GHCR_TOKEN }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
@@ -65,7 +74,7 @@ jobs:
           password: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            docker login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GHCR_TOKEN }}
+            docker login ghcr.io --username ${{ env.OWNER_LC }} --password ${ GHCR_TOKEN }
 
       - name: Deploy
         uses: appleboy/ssh-action@master # 추적을 위해 스텝을 나누어놨지만 한스크립트에서 전부 돌려도댐
