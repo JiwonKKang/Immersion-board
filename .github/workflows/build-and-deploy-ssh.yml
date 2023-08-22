@@ -9,7 +9,7 @@ on:
     # 리스트 형태이기 때문에 여러개를 적어도 됩니다.
 
 env:
-  DOCKER_IMAGE: ghcr.io/${{ github.actor }}/sbb
+  DOCKER_IMAGE: ghcr.io/jiwonkkang/sbb
   VERSION: ${{ github.sha }}
   CONTAINER_NAME: sbb
   # Docker image 를 ghcr.io 에 올릴 때 우리의github이름/이미지이름 으로 저장한다. 이미지이름을 정해주면 된다.
@@ -57,15 +57,27 @@ jobs:
     runs-on: ubuntu-latest # runner 한 러너에서 job 1개
     # label-newproject 라는 이름으로 AWS EC2 가 Runner 를 작동시킬 때 사용했던 그 label
     steps:
+      - name: Docker login
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_SSH_ID }}
+          password: ${{ secrets.REMOTE_SSH_KEY }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            whoami
+            docker login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GHCR_TOKEN }}
+
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
+          password: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
+            docker login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GHCR_TOKEN }}
             docker pull ${{ env.DOCKER_IMAGE }}:latest
 
       - name: Run
