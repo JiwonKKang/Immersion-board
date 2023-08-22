@@ -65,19 +65,16 @@ jobs:
           password: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            whoami
             docker login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GHCR_TOKEN }}
 
       - name: Deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master # 추적을 위해 스텝을 나누어놨지만 한스크립트에서 전부 돌려도댐
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_SSH_ID }}
           password: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            whoami
-            docker login ghcr.io --username ${{ github.actor }} --password ${{ secrets.GHCR_TOKEN }}
             docker pull ${{ env.DOCKER_IMAGE }}:latest
 
       - name: Run
