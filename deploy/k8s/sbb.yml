@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sbb-deployment
+  namespace: sbb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sbb-app
+  template:
+    metadata:
+      name: sbb-pod
+      labels:
+        app: sbb-app
+    spec:
+      containers:
+        - name: sbb-app
+          image: ghcr.io/jiwonkkang/sbb:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: sbb-configmap
+            - secretRef:
+                name: sbb-secret
+      imagePullSecrets:
+        - name: ghcr
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sbb-svc-lb
+  namespace: sbb
+spec:
+  ports:
+    - name: web-port
+      port: 80
+      targetPort: 8080
+  selector:
+    app: sbb-app
+  type: LoadBalancer
+
+---
